@@ -75,6 +75,7 @@ First, clone the project repository to your local machine:
 ```bash
 git clone [https://github.com/Anugrah0619/Medical_Chatbot.git](https://github.com/Anugrah0619/Medical_Chatbot.git)
 cd Medical_Chatbot
+```
 
 ---
 
