@@ -16,3 +16,7 @@ STEPS -
 3. Activate environment - conda activate medbot
 
 4. Install all the requirements - pip install -r requirements.txt
+
+5. Execute store_index.py only once.
+
+6. Also setup your pinecone vector DB API along with openrouter API.
