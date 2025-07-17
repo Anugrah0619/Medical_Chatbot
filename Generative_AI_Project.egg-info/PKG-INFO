@@ -1,5 +1,7 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: Generative-AI-Project
 Version: 0.0.0
 Author: Anugrah Kulkarni
 Author-email: kulkarnianugrah18@gmail.com
+Dynamic: author
+Dynamic: author-email
