@@ -1,0 +1,24 @@
+Created using modular programming not scripting.
+
+Information of the book "the gale encyclopedia of medicine" is used as the knowledge base.
+Pine Cone vector database is used which is a cloud native vector database.
+
+The entire medical information in this book will be extracted and chunks will be created.
+With the help of embedding model, we create vector embedding which will be storedd in the pine cone DB (knowledge base).
+
+NOTE - Local database isn't used because data size is huge and storage won't be efficient.
+
+LLMs are to to be used to create production ready application (Open AI).
+The open AI model is already hosted and can be accessed through API request.
+
+NOTE - Open source LLMs can be used but it would be inefficient as it's storage exceeds 10-20 GB
+       and cannot be executed in our local machine. Also for hosting it, this would take good 
+       amount of resources so the cost increases by a lot.
+
+
+Tech Stack - 1. Open AI LLM
+             2. Langchain
+             3. Pinecone vector DB
+             4. Flask (python framework)
+             5. Github (Version Control)
+             6. AWS (simple/CICD) deployment
