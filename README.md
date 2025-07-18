@@ -61,6 +61,11 @@ Medical_Chatbot/
 ├── README.md               # This file
 └── ... (other project files)
 ```
+---
+
+### Knowledge Base Source
+
+The chatbot's medical knowledge base is derived from **The Gale Encyclopedia of Medicine, 3rd Edition**. The PDF version of this encyclopedia was used to extract information, which was then processed and indexed into the Pinecone vector database.
 
 ---
 
@@ -162,3 +167,53 @@ http://127.0.0.1:5000/
 ```
 
 You’ll see the chatbot interface where you can ask questions related to the uploaded medical PDFs.
+
+---
+
+# 🩺 Medical Chatbot: Live Demo & Output
+
+This section showcases the live output and user interface of the Medical Chatbot, demonstrating its ability to provide concise, context-aware answers on medical conditions.
+
+---
+
+## ✨ Key Functionality in Action
+
+The chatbot leverages a **Retrieval-Augmented Generation (RAG)** pipeline to deliver accurate responses. When a user asks a question, the system:
+1.  Retrieves relevant information from its indexed knowledge base (The Gale Encyclopedia of Medicine, 3rd Edition).
+2.  Feeds this context along with the user's query to a **Google Gemma 3n 2B LLM (via OpenRouter.ai)**.
+3.  Generates a concise answer, formatted with clear sections for **Description**, **Prevention**, and **Medications**, as instructed by the system prompt.
+
+---
+
+## 🖥️ Chatbot Interface
+
+The chatbot features a clean, user-friendly web interface built with Flask, HTML, and CSS. The design incorporates vibrant colors for user and AI messages against a sleek black background.
+
+## 💬 Sample Interaction (Visual)
+
+Below is a visual representation of a sample interaction, showing a question asked and the chatbot's structured response.
+
+![Sample Chat Interaction](Screenshot 2025-07-18 171219.png)
+![Sample Chat Interaction](Screenshot 2025-07-18 171815.png)
+*Figure: A sample question and the chatbot's structured response, demonstrating RAG in action.*
+
+---
+
+## 🎨 Customize the User Interface
+
+The chatbot's user interface is built using standard HTML, CSS, and JavaScript. You can easily customize its appearance and layout:
+
+* **HTML Structure:** Modify `templates/index.html` to change the layout of the chat elements.
+* **CSS Styling:** Edit `static/style.css` to adjust colors, fonts, spacing, and animations. Feel free to experiment with new color schemes, gradients, and visual effects to match your preferences!
+
+---
+
+## 🚀 Technologies Powering the Chatbot (Brief)
+
+* **Python (Flask)**
+* **LangChain**
+* **HuggingFace Embeddings**
+* **Pinecone**
+* **OpenRouter.ai (Google Gemma 3n 2B)**
+
+---
