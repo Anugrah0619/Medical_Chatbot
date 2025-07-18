@@ -194,8 +194,8 @@ The chatbot features a clean, user-friendly web interface built with Flask, HTML
 
 Below is a visual representation of a sample interaction, showing a question asked and the chatbot's structured response.
 
-![Sample Chat Interaction](C:\Users\Lenovo\Documents\Medical_Chatbot\screenshorts\screenshot_overall_ui.png)
-![Sample Chat Interaction](C:\Users\Lenovo\Documents\Medical_Chatbot\screenshorts\screenshot_sample_interaction.png)
+![Sample Chat Interaction](screenshorts/screenshot_overall_ui.png)
+![Sample Chat Interaction](screenshorts/screenshot_sample_interaction.png)
 *Figure: A sample question and the chatbot's structured response, demonstrating RAG in action.*
 
 ---
