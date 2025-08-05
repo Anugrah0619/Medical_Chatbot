@@ -1,6 +1,8 @@
 from flask import Flask, render_template, jsonify, request
 import os
+import sys
 from dotenv import load_dotenv
+
 # --- RAG Specific Imports ---
 from src.helper import download_hugging_face_embeddings
 from langchain_pinecone import PineconeVectorStore
@@ -10,101 +12,83 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from pinecone import Pinecone 
 from src.promot import system_prompt
+
+# --- Initialize Flask App ---
 app = Flask(__name__)
+load_dotenv()  # Load environment variables
 
-load_dotenv() # Load environment variables from .env file
-
-# --- Retrieve API Keys ---
+# --- Retrieve & Validate API Keys ---
 PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
 openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
 
-# --- Validate API Keys ---
 if not PINECONE_API_KEY:
     raise ValueError("PINECONE_API_KEY not found in environment variables.")
 if not openrouter_api_key:
     raise ValueError("OPENROUTER_API_KEY not found in environment variables.")
 
-# --- Initialize Pinecone Client Globally ---
-# This is crucial for PineconeVectorStore.from_existing_index()
+# --- Pinecone Initialization ---
 try:
     Pinecone(api_key=PINECONE_API_KEY)
-    print("Pinecone client initialized globally.")
+    print("Pinecone client initialized.")
 except Exception as e:
-    raise ConnectionError(f"Failed to initialize Pinecone client: {e}. Check your PINECONE_API_KEY.")
+    raise ConnectionError(f"Failed to initialize Pinecone: {e}")
 
-# --- Initialize Embeddings Model ---
-print("Initializing embeddings model...")
+# --- Embedding Model ---
+print("Initializing embeddings...")
 embeddings = download_hugging_face_embeddings()
-print("Embeddings model initialized.")
 
-# --- Connect to Existing Pinecone Index ---
-index_name = "medicalbot" # Ensure this matches your actual Pinecone index name
-print(f"Connecting to Pinecone index: {index_name}...")
+# --- Pinecone Vector Store ---
+index_name = "medicalbot"
 try:
     docsearch = PineconeVectorStore.from_existing_index(
         index_name=index_name,
         embedding=embeddings
     )
-    print(f"Successfully connected to Pinecone index '{index_name}'.")
 except Exception as e:
-    raise ConnectionError(f"Failed to connect to Pinecone index '{index_name}': {e}. Ensure the index exists and is populated.")
+    raise ConnectionError(f"Could not connect to Pinecone index: {e}")
 
-# --- Create Retriever ---
-retriever = docsearch.as_retriever(search_type="similarity", search_kwargs={"k":3})
-print("Retriever created.")
+retriever = docsearch.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
-# --- Initialize Language Model (LLM) ---
+# --- Language Model ---
 llm = ChatOpenAI(
     openai_api_key=openrouter_api_key,
     openai_api_base="https://openrouter.ai/api/v1",
-    model_name="google/gemma-3n-e2b-it:free", # Using the free Gemma model via OpenRouter
-    temperature=0.4, # Corrected syntax
+    model_name="google/gemma-3n-e2b-it:free",
+    temperature=0.4,
     max_tokens=500
 )
-print(f"LLM initialized with model: {llm.model_name}")
 
-# --- Define Chat Prompt Template ---
-# Assuming system_prompt is correctly defined in src.promot
-prompt = ChatPromptTemplate.from_messages(
-    [
-        ("human", system_prompt + "\n\nQuestion: {input}"), 
-    ]
-)
-print("Chat prompt template created.")
+prompt = ChatPromptTemplate.from_messages([
+    ("human", system_prompt + "\n\nQuestion: {input}")
+])
 
-# --- Create RAG Chains ---
+# --- LangChain RAG Setup ---
 question_answer_chain = create_stuff_documents_chain(llm, prompt)
 rag_chain = create_retrieval_chain(retriever, question_answer_chain)
-print("RAG chain created.")
 
 # --- Flask Routes ---
 @app.route("/")
 def home():
-    """Renders the main chat interface."""
     return render_template("index.html")
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    """Handles chat requests and returns AI response."""
     user_message = request.json.get("message")
     if not user_message:
         return jsonify({"error": "No message provided"}), 400
-
-    print(f"Received message: {user_message}")
     try:
-        # Invoke your RAG chain
         response = rag_chain.invoke({"input": user_message})
-        ai_response = response["answer"] # LangChain's RAG chain typically returns 'answer'
-
-        print(f"AI Response: {ai_response}")
-        return jsonify({"response": ai_response})
+        return jsonify({"response": response["answer"]})
     except Exception as e:
-        print(f"Error during RAG chain invocation: {e}")
-        return jsonify({"error": "Sorry, something went wrong. Please try again."}), 500
+        print(f"RAG Error: {e}")
+        return jsonify({"error": "Something went wrong. Try again."}), 500
 
-import os
-
+# --- Entry Point ---
 if __name__ == "__main__":
-    print("Starting Flask application...")
-    port = int(os.environ.get("PORT", 5000))  # default to 5000 for local testing
-    app.run(host="0.0.0.0", port=port, debug=True)
+    # Only run Flask dev server locally
+    if "gunicorn" not in sys.argv[0]:
+        print("Running locally with Flask server...")
+        port = int(os.environ.get("PORT", 5000))
+        app.run(host="0.0.0.0", port=port, debug=True)
+    else:
+        print("Running on Gunicorn. Flask dev server skipped.")
