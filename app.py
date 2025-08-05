@@ -102,6 +102,9 @@ def chat():
         print(f"Error during RAG chain invocation: {e}")
         return jsonify({"error": "Sorry, something went wrong. Please try again."}), 500
 
+import os
+
 if __name__ == "__main__":
     print("Starting Flask application...")
-    app.run(debug=True) # debug=True is for development, set to False in production
+    port = int(os.environ.get("PORT", 5000))  # default to 5000 for local testing
+    app.run(host="0.0.0.0", port=port, debug=True)
