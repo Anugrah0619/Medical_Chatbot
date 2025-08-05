@@ -1,7 +1,7 @@
-# requirements.txt
+gunicorn
+flask
 sentence-transformers==5.0.0
 langchain
-flask
 pypdf
 python-dotenv
 pinecone[grpc]
